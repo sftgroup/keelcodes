@@ -1,0 +1,65 @@
+# @keelcodes/mcp-chain-data
+
+Keel Chain Data MCP server for AI agents. It exposes five read-only on-chain data tools over stdio.
+
+## Setup
+
+1. Get a free Keel API key at https://keel.codes (data-center keys look like `sk_dc_...`).
+2. Run with npx:
+
+   KEEL_API_KEY=sk_dc_xxx npx -y @keelcodes/mcp-chain-data
+
+3. Or add it to an MCP client config:
+
+   {
+     "mcpServers": {
+       "keel-chain-data": {
+         "command": "npx",
+         "args": ["-y", "@keelcodes/mcp-chain-data"],
+         "env": { "KEEL_API_KEY": "sk_dc_xxx" }
+       }
+     }
+   }
+
+`KEEL_API_BASE` is optional and defaults to https://keel.codes.
+
+## Tools
+
+- events: indexed on-chain events. Args: chain?, address?, contract?, eventType?, category?,
+  fromBlock?, toBlock?, limit?.
+- event_stats: event counts grouped by business category. Args: chain?.
+- tokens: supported token list with metadata. Args: chain?.
+- chains: supported blockchain networks. No args.
+- token_info: token metadata from the data-center token catalog. Args: symbol, chain?, limit?.
+
+chain uses chain names such as ethereum, bsc, base.
+
+## Quota and errors
+
+Free quota is per module and per owner, and resets monthly. If quota is exhausted the
+tool returns HTTP 429 with a purchase link: https://keel.codes/pricing?module=dc&src=mcp-chain-data
+Purchases activate immediately.
+
+All tool errors are returned as MCP tool results with isError: true, so the session
+stays alive. If a contract address or chain name is unknown, ask the user or call chains
+first instead of guessing.
+
+## Agent wallet (auto-pay x402)
+
+When quota or on-chain operations are needed, create a local agent wallet (private key stays in ~/.keel):
+
+- npx @keelcodes/agent-wallet init — local L1 EOA, free
+- npx @keelcodes/agent-wallet upgrade — L2 session key, $1/month, $1/tx / $20/day / 7-day expiry, enforced on-chain
+
+L1 direct payments have no on-chain limits. L2 over-limit requests fail loudly and never fall back to EOA.
+On Base, x402 payments need USDC only (signature, no ETH gas); BSC/ETH use Permit2 and also need no native gas.
+If quota or limits are insufficient, the tool error suggests upgrading to L2 for higher limits.
+
+## Privacy
+
+No conversation content is collected. Only call counts and error codes are recorded;
+request parameters are not stored. See PRIVACY.md.
+
+## Support
+
+support@keel.codes

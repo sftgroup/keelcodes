@@ -1,0 +1,56 @@
+{
+  "name": "@keelcodes/mcp-market",
+  "version": "0.1.4",
+  "description": "Keel Market MCP server — DEX price, candles, hot tokens and token search for AI agents",
+  "license": "Apache-2.0",
+  "homepage": "https://keel.codes",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sftgroup/keelcodes.git",
+    "directory": "packages/mcp-market"
+  },
+  "type": "module",
+  "bin": {
+    "keel-mcp-market": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "server.json",
+    "llms.txt",
+    "PRIVACY.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "pnpm run build && node --test tests/tools.test.mjs",
+    "prepublishOnly": "pnpm run build && node --test tests/tools.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "keel",
+    "mcp",
+    "market",
+    "dex",
+    "crypto",
+    "price",
+    "candles",
+    "ai-agent"
+  ],
+  "author": "Keel",
+  "dependencies": {
+    "@keelcodes/sdk": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}

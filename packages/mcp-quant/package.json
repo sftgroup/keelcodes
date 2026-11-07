@@ -1,0 +1,56 @@
+{
+  "name": "@keelcodes/mcp-quant",
+  "version": "0.1.4",
+  "description": "Keel Quant MCP server — bars, tickers, factors, ML predictions and trading calendars for AI agents",
+  "license": "Apache-2.0",
+  "homepage": "https://keel.codes",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sftgroup/keelcodes.git",
+    "directory": "packages/mcp-quant"
+  },
+  "type": "module",
+  "bin": {
+    "keel-mcp-quant": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "server.json",
+    "llms.txt",
+    "PRIVACY.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "pnpm run build && node --test tests/tools.test.mjs",
+    "prepublishOnly": "pnpm run build && node --test tests/tools.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "keel",
+    "mcp",
+    "quant",
+    "market-data",
+    "ohlcv",
+    "factors",
+    "forecast",
+    "ai-agent"
+  ],
+  "author": "Keel",
+  "dependencies": {
+    "@keelcodes/sdk": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}

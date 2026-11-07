@@ -1,0 +1,63 @@
+# @keelcodes/mcp-market
+
+Keel Market MCP server for AI agents. It exposes four read-only DEX market tools over stdio.
+
+## Setup
+
+1. Get a free Keel API key at https://keel.codes (keys look like `sk_market_...`).
+2. Run with npx:
+
+   KEEL_API_KEY=sk_market_xxx npx -y @keelcodes/mcp-market
+
+3. Or add it to an MCP client config:
+
+   {
+     "mcpServers": {
+       "keel-market": {
+         "command": "npx",
+         "args": ["-y", "@keelcodes/mcp-market"],
+         "env": { "KEEL_API_KEY": "sk_market_xxx" }
+       }
+     }
+   }
+
+`KEEL_API_BASE` is optional and defaults to https://keel.codes.
+
+## Tools
+
+- market_price: real-time DEX token price. Args: chainIndex, tokenAddress.
+- market_candles: OHLCV candles. Args: chainIndex, tokenAddress, period?, limit?.
+- market_hot_tokens: trending DEX pools. Args: chainIndex?, limit?.
+- market_token_search: search DEX tokens by name/symbol. Args: keyword, chainIndex?, limit?.
+
+chainIndex is a numeric chain ID, e.g. 1 = Ethereum, 56 = BNB Chain, 8453 = Base.
+
+## Quota and errors
+
+Free quota is per module and per owner, and resets monthly. If quota is exhausted the
+tool returns HTTP 429 with a purchase link: https://keel.codes/pricing?module=market&src=mcp-market
+Purchases activate immediately.
+
+All tool errors are returned as MCP tool results with isError: true, so the session
+stays alive. Never assume a missing argument: if the agent needs a token address, ask
+the user or call market_token_search first.
+
+## Agent wallet (auto-pay x402)
+
+When quota or on-chain operations are needed, create a local agent wallet (private key stays in ~/.keel):
+
+- npx @keelcodes/agent-wallet init — local L1 EOA, free
+- npx @keelcodes/agent-wallet upgrade — L2 session key, $1/month, $1/tx / $20/day / 7-day expiry, enforced on-chain
+
+L1 direct payments have no on-chain limits. L2 over-limit requests fail loudly and never fall back to EOA.
+On Base, x402 payments need USDC only (signature, no ETH gas); BSC/ETH use Permit2 and also need no native gas.
+If quota or limits are insufficient, the tool error suggests upgrading to L2 for higher limits.
+
+## Privacy
+
+No conversation content is collected. Only call counts and error codes are recorded;
+request parameters are not stored. See PRIVACY.md.
+
+## Support
+
+support@keel.codes

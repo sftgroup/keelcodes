@@ -1,0 +1,72 @@
+{
+  "name": "@keelcodes/sdk",
+  "version": "2.11.0",
+  "description": "Keel SDK — unified access to payment / wallet / data / account modules over https://keel.codes",
+  "license": "Apache-2.0",
+  "homepage": "https://keel.codes",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sftgroup/keelcodes.git",
+    "directory": "packages/sdk"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./payment": {
+      "types": "./dist/payment.d.ts",
+      "default": "./dist/payment.js"
+    },
+    "./wallet": {
+      "types": "./dist/wallet/index.d.ts",
+      "default": "./dist/wallet/index.js"
+    },
+    "./data": {
+      "types": "./dist/data.d.ts",
+      "default": "./dist/data.js"
+    },
+    "./account": {
+      "types": "./dist/account.d.ts",
+      "default": "./dist/account.js"
+    },
+    "./aa": {
+      "types": "./dist/aa/index.d.ts",
+      "default": "./dist/aa/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "keel",
+    "payment",
+    "wallet",
+    "data",
+    "account",
+    "sdk"
+  ],
+  "author": "Keel",
+  "dependencies": {
+    "viem": "^2.55.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

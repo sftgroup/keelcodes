@@ -1,0 +1,54 @@
+{
+  "name": "@keelcodes/mcp",
+  "version": "1.4.0",
+  "description": "Keel MCP server — expose payment/wallet/data/account tools to AI agents (Claude/Cursor/etc.)",
+  "license": "Apache-2.0",
+  "homepage": "https://keel.codes",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sftgroup/keelcodes.git",
+    "directory": "packages/mcp"
+  },
+  "type": "module",
+  "bin": {
+    "keel-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test \"tests/*.test.mjs\"",
+    "prepublishOnly": "npm run test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "keel",
+    "mcp",
+    "model-context-protocol",
+    "payment",
+    "wallet",
+    "data",
+    "account",
+    "ai-agent"
+  ],
+  "dependencies": {
+    "@keelcodes/sdk": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}
