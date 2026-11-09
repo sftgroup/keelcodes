@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T10:22:29.035Z",
+  "generatedAt": "2026-11-09T11:30:05.638Z",
   "repo": "sftgroup/keelcodes",
   "metrics": [
     {
@@ -32,10 +32,10 @@
     {
       "id": "github.contributors",
       "label": "Contributors",
-      "value": 1,
+      "value": 2,
       "source": "GitHub API · /contributors",
       "frequency": "weekly",
-      "display": "1",
+      "display": "2",
       "target": "TBD"
     },
     {
@@ -59,10 +59,10 @@
     {
       "id": "npm.downloads",
       "label": "npm weekly downloads",
-      "value": 5498,
+      "value": 5806,
       "source": "npm registry API",
       "frequency": "weekly",
-      "display": "5.5k",
+      "display": "5.8k",
       "target": "TBD"
     },
     {
@@ -186,7 +186,7 @@
   "packages": [
     {
       "name": "@keelcodes/adapters",
-      "weeklyDownloads": 26
+      "weeklyDownloads": 31
     },
     {
       "name": "@keelcodes/cli",
@@ -194,55 +194,55 @@
     },
     {
       "name": "@keelcodes/conformance",
-      "weeklyDownloads": 8
+      "weeklyDownloads": 11
     },
     {
       "name": "@keelcodes/manifest",
-      "weeklyDownloads": 28
-    },
-    {
-      "name": "@keelcodes/mcp",
-      "weeklyDownloads": 463
-    },
-    {
-      "name": "@keelcodes/mcp-chain-data",
-      "weeklyDownloads": 1082
-    },
-    {
-      "name": "@keelcodes/mcp-market",
-      "weeklyDownloads": 1088
-    },
-    {
-      "name": "@keelcodes/mcp-policy",
-      "weeklyDownloads": 340
-    },
-    {
-      "name": "@keelcodes/mcp-quant",
-      "weeklyDownloads": 1087
-    },
-    {
-      "name": "@keelcodes/migrate",
-      "weeklyDownloads": 9
-    },
-    {
-      "name": "@keelcodes/policy",
       "weeklyDownloads": 29
     },
     {
+      "name": "@keelcodes/mcp",
+      "weeklyDownloads": 518
+    },
+    {
+      "name": "@keelcodes/mcp-chain-data",
+      "weeklyDownloads": 1117
+    },
+    {
+      "name": "@keelcodes/mcp-market",
+      "weeklyDownloads": 1125
+    },
+    {
+      "name": "@keelcodes/mcp-policy",
+      "weeklyDownloads": 364
+    },
+    {
+      "name": "@keelcodes/mcp-quant",
+      "weeklyDownloads": 1123
+    },
+    {
+      "name": "@keelcodes/migrate",
+      "weeklyDownloads": 11
+    },
+    {
+      "name": "@keelcodes/policy",
+      "weeklyDownloads": 34
+    },
+    {
       "name": "@keelcodes/sdk",
-      "weeklyDownloads": 923
+      "weeklyDownloads": 853
     },
     {
       "name": "@keelcodes/self-host",
-      "weeklyDownloads": 14
+      "weeklyDownloads": 22
     },
     {
       "name": "@keelcodes/settlement",
-      "weeklyDownloads": 7
+      "weeklyDownloads": 8
     },
     {
       "name": "@keelcodes/x402-gate",
-      "weeklyDownloads": 386
+      "weeklyDownloads": 552
     }
   ],
   "chains": [
@@ -306,13 +306,13 @@
     {
       "file": "contributors.svg",
       "label": "contributors",
-      "value": "1",
+      "value": "2",
       "color": "#4c1"
     },
     {
       "file": "npm-downloads.svg",
       "label": "npm / week",
-      "value": "5.5k",
+      "value": "5.8k",
       "color": "#007ec6"
     }
   ]
