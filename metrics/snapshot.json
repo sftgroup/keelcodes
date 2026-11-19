@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T11:40:51.356Z",
+  "generatedAt": "2026-11-19T11:38:36.179Z",
   "repo": "sftgroup/keelcodes",
   "metrics": [
     {
@@ -59,7 +59,7 @@
     {
       "id": "npm.downloads",
       "label": "npm weekly downloads",
-      "value": 1540,
+      "value": 1483,
       "source": "npm registry API",
       "frequency": "weekly",
       "display": "1.5k",
@@ -186,51 +186,51 @@
   "packages": [
     {
       "name": "@keelcodes/adapters",
-      "weeklyDownloads": 37
+      "weeklyDownloads": 33
     },
     {
       "name": "@keelcodes/cli",
-      "weeklyDownloads": 7
+      "weeklyDownloads": 8
     },
     {
       "name": "@keelcodes/conformance",
-      "weeklyDownloads": 6
+      "weeklyDownloads": 7
     },
     {
       "name": "@keelcodes/manifest",
-      "weeklyDownloads": 8
+      "weeklyDownloads": 9
     },
     {
       "name": "@keelcodes/mcp",
-      "weeklyDownloads": 497
+      "weeklyDownloads": 478
     },
     {
       "name": "@keelcodes/mcp-chain-data",
-      "weeklyDownloads": 49
+      "weeklyDownloads": 45
     },
     {
       "name": "@keelcodes/mcp-market",
-      "weeklyDownloads": 62
+      "weeklyDownloads": 58
     },
     {
       "name": "@keelcodes/mcp-policy",
-      "weeklyDownloads": 29
+      "weeklyDownloads": 27
     },
     {
       "name": "@keelcodes/mcp-quant",
-      "weeklyDownloads": 43
+      "weeklyDownloads": 39
     },
     {
       "name": "@keelcodes/migrate",
-      "weeklyDownloads": 8
+      "weeklyDownloads": 9
     },
     {
       "name": "@keelcodes/policy",
-      "weeklyDownloads": 8
+      "weeklyDownloads": 11
     },
     {
       "name": "@keelcodes/sdk",
-      "weeklyDownloads": 705
+      "weeklyDownloads": 686
     },
     {
       "name": "@keelcodes/self-host",
@@ -238,11 +238,11 @@
     },
     {
       "name": "@keelcodes/settlement",
-      "weeklyDownloads": 6
+      "weeklyDownloads": 7
     },
     {
       "name": "@keelcodes/x402-gate",
-      "weeklyDownloads": 51
+      "weeklyDownloads": 42
     }
   ],
   "chains": [
