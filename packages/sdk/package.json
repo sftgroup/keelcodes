@@ -1,6 +1,6 @@
 {
   "name": "@keelcodes/sdk",
-  "version": "2.15.1",
+  "version": "2.15.2",
   "description": "Keel SDK — unified access to payment / wallet / data / account modules over https://keel.codes",
   "license": "Apache-2.0",
   "homepage": "https://keel.codes",
