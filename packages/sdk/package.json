@@ -1,6 +1,7 @@
 {
   "name": "@keelcodes/sdk",
   "version": "2.15.2",
+  "gitHead": "3ce83140760de8ae1df4262ae7eeef5ae6e1e8ee",
   "description": "Keel SDK — unified access to payment / wallet / data / account modules over https://keel.codes",
   "license": "Apache-2.0",
   "homepage": "https://keel.codes",
