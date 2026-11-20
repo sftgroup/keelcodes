@@ -8,6 +8,8 @@ import type {
   SignResult,
   SendParams,
   SendResult,
+  EstimateGasParams,
+  SweepParams,
   ChainParams,
   ChainResult,
   WalletBalanceParams,
@@ -83,17 +85,22 @@ export class WalletAPI {
     return this.http.post<SignResult>('/v1/wallet/sign', params)
   }
 
+  /**
+   * 发送交易。服务端读 `toAddress`（必填）、`paymentPassword`（必填）、`totpCode`（启用 2FA 时必填）；
+   * 此处把旧字段 `to` 映射为 `toAddress`，并原样透传其余字段（含 Solana 的 `tokenAddress` = SPL mint）。
+   */
   send(params: SendParams): Promise<SendResult> {
-    return this.http.post<SendResult>('/v1/wallet/send', params)
+    const { to, toAddress, ...rest } = params
+    return this.http.post<SendResult>('/v1/wallet/send', { ...rest, toAddress: toAddress ?? to })
   }
 
-  /** 预估交易 gas（不耗资金）。 */
-  estimateGas(params: { walletId: string; toAddress: string; amount: string; chain: string; tokenAddress?: string }): Promise<Record<string, unknown>> {
+  /** 预估交易 gas（不耗资金）。Solana 返回可预知的签名费与目标 ATA rent。 */
+  estimateGas(params: EstimateGasParams): Promise<Record<string, unknown>> {
     return this.http.post<Record<string, unknown>>('/v1/wallet/estimate-gas', params)
   }
 
   /** 清空钱包原生余额到指定地址（sweep）。 */
-  sweep(params: { walletId: string; toAddress: string; chain: string; paymentPassword: string }): Promise<Record<string, unknown>> {
+  sweep(params: SweepParams): Promise<Record<string, unknown>> {
     return this.http.post<Record<string, unknown>>('/v1/wallet/sweep', params)
   }
 
@@ -104,7 +111,7 @@ export class WalletAPI {
 
   /** 链上读写（读 + 广播统一，走 chain-rpc 聚合层）。 */
   chain(params: ChainParams): Promise<ChainResult> {
-    return this.http.post<ChainResult>('/v1/wallet/chain', params)
+    return this.http.rpcPost<ChainResult>('/v1/wallet/chain', params)
   }
 
   balance(params: WalletBalanceParams): Promise<WalletBalanceResult> {
@@ -144,9 +151,9 @@ export class WalletAPI {
   /** Chain-RPC 子域：池状态 / 读套餐订阅面（canonical `/v1/wallet/chain/*`）。 */
   chainRpc = {
     /** chain-rpc 网关池状态（各链健康 / 活跃端点，脱敏）。 */
-    status: () => this.http.get('/v1/wallet/chain/status'),
+    status: () => this.http.rpcGet('/v1/wallet/chain/status'),
     /** chain-rpc 网关健康检查。 */
-    health: () => this.http.get('/v1/wallet/chain/health'),
+    health: () => this.http.rpcGet('/v1/wallet/chain/health'),
     /** RPC 读套餐订阅面。 */
     subscription: {
       /** 套餐目录 + 完整链表（公开，无需 key）。 */

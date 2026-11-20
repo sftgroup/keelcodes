@@ -19,6 +19,12 @@ export interface KeelWalletAuth {
 export interface KeelConfig {
   /** baseUrl，默认 https://keel.codes */
   baseUrl?: string
+  /**
+   * 链上 RPC 专用 baseUrl（仅作用于 `wallet.chain()` 与 `wallet.chainRpc.*`），
+   * 默认继承 `baseUrl`。可指向独立 HA 入口（如 `https://rpc.keel.codes`），
+   * 其余模块仍走 `baseUrl`。
+   */
+  rpcBaseUrl?: string
   /** Bearer API key（按模块订阅签发，`sk_<module>_*`） */
   apiKey?: string
   /** 租户级 `x-api-key`（WAAS 租户资源面：余额 / 流水 / 提现列表等）。 */

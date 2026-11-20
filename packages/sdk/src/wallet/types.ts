@@ -4,6 +4,22 @@
 
 export type WalletType = 'waas' | 'mpc' | 'safe' | 'aa'
 
+/**
+ * 金额一律用**十进制字符串**：SOL 9 位小数、SPL 按 mint decimals、EVM 原生 18 位。
+ * 不要传 JSON number，避免精度丢失。
+ */
+export type AmountString = string
+
+/**
+ * Solana 链标识：`solana`（别名 `sol`）；测试网 `solana-devnet`。
+ *
+ * 约束（与 WAAS 契约一致）：
+ * - 地址是 **base58 且大小写敏感**，任何一层都不得 `toLowerCase()`；
+ * - `tokenAddress` 在 Solana 上等于 **SPL mint**；
+ * - 原生 SOL 传 `token: '*'` 且不传 `tokenAddress`。
+ */
+export type SolanaChain = 'solana' | 'sol' | 'solana-devnet'
+
 export interface CreateWalletParams {
   type: WalletType
   chain?: string
@@ -37,17 +53,43 @@ export interface SignResult {
 
 export interface SendParams {
   walletId: string
-  to: string
-  amount: string
+  /** 收款地址（服务端字段名）。Solana 为 base58，**大小写敏感，不得归一化**。 */
+  toAddress?: string
+  /** @deprecated 旧字段名，等价 `toAddress`（SDK 内部自动映射，两者只传其一）。 */
+  to?: string
+  amount: AmountString
+  /** Solana 传 `solana`（别名 `sol`）；EVM 传链名或 chainId。 */
   chain: string
+  /** Solana 上等于 SPL mint（base58，大小写敏感）；ERC-20 为合约地址。 */
   tokenAddress?: string
-  /** 幂等键（防重复转账）。 */
+  /** 幂等键（防重复转账，≤100 字符）。 */
   reference?: string
+  /** 资金密码（服务端必填）。 */
+  paymentPassword?: string
+  /** 账户启用 TOTP 后必填。 */
+  totpCode?: string
 }
 
 export interface SendResult {
   txHash: string
   status: string
+}
+
+/** 估费入参（Solana 返回可精确预知的签名费与目标 ATA rent）。 */
+export interface EstimateGasParams {
+  walletId: string
+  toAddress: string
+  amount: AmountString
+  chain: string
+  tokenAddress?: string
+}
+
+/** 清空钱包原生余额到指定地址（sweep）。 */
+export interface SweepParams {
+  walletId: string
+  toAddress: string
+  chain: string
+  paymentPassword: string
 }
 
 export interface ChainParams {

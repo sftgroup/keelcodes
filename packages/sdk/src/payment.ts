@@ -130,7 +130,9 @@ export interface PaymentRequiredBody {
 
 // ── 代播费（settle-fees）自助面：余额查询 / 自助充值 ──
 // 服务端契约见 payments `self-topup.ts`：两个端点免平台 key，但都要求
-// payTo 私钥对**可读消息**做 EIP-191 签名（防止地址枚举 / 抢注他人 tx）。
+// payTo 私钥对**可读消息**签名（防止地址枚举 / 抢注他人 tx）：
+//   EVM    → EIP-191 `personal_sign`（`0x` hex）
+//   Solana → Ed25519（base58，公钥即 payTo；地址大小写敏感，不能 lowercase）
 
 /** 代播费余额（6 位微单位，0.1 USDC = `100000`）。 */
 export interface SettleFeeBalanceResult {
@@ -138,21 +140,36 @@ export interface SettleFeeBalanceResult {
   balanceMicro: string
 }
 
+/**
+ * settle-fees 签名器：EVM 返回 EIP-191 的 `0x` hex，Solana 返回 base58 的
+ * Ed25519 签名。`KeelConfig.wallet` 只能签 EVM；Solana 地址请用本字段，
+ * 或直接传已签好的 `signature`。
+ */
+export interface SettleFeesSigner {
+  /** EVM `0x…` 地址或 Solana base58 公钥（必须等于 payTo）。 */
+  address: string
+  sign(message: string): Promise<string> | string
+}
+
 export interface SettleFeeBalanceParams {
   /** 收款地址（即上架时登记的 payTo）。 */
   payTo: string
-  /** 已签好的签名；缺省用 `KeelConfig.wallet` 自动签。 */
+  /** 已签好的签名；缺省用 `signer` / `KeelConfig.wallet` 自动签。 */
   signature?: string
+  /** 自动签用的签名器（Solana 走这里；EVM 可省略并复用 `KeelConfig.wallet`）。 */
+  signer?: SettleFeesSigner
 }
 
 export interface SettleFeeTopupParams {
   payTo: string
-  /** 链槽名（小写，如 `base` / `bsc`）。 */
+  /** 链槽名（小写，如 `base` / `bsc` / `solana`）。 */
   chain: string
   /** 已上链的充值交易哈希（转账收款方必须是该链平台 collector）。 */
   txHash: string
-  /** 已签好的签名；缺省用 `KeelConfig.wallet` 自动签。 */
+  /** 已签好的签名；缺省用 `signer` / `KeelConfig.wallet` 自动签。 */
   signature?: string
+  /** 自动签用的签名器（Solana 走这里；EVM 可省略并复用 `KeelConfig.wallet`）。 */
+  signer?: SettleFeesSigner
 }
 
 export interface SettleFeeTopupResult {
@@ -165,14 +182,29 @@ export interface SettleFeeTopupResult {
   balanceMicro: string
 }
 
-/** 余额查询待签消息（服务端 `keel-settle-balance:<payTo>`，全小写）。 */
-export function settleFeesBalanceMessage(payTo: string): string {
-  return `keel-settle-balance:${payTo.toLowerCase()}`
+const EVM_ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/
+
+/**
+ * 地址归一：EVM 统一小写，Solana base58 原样保留（大小写敏感，lowercase 会串号）。
+ * 与服务端 payments `base58.ts` 的 `payToKey()` 保持一致。
+ */
+function payToKey(address: string): string {
+  return EVM_ADDRESS_RE.test(address) ? address.toLowerCase() : address
 }
 
-/** 自助充值待签消息（服务端 `keel-settle-topup:<chain>:<txHash>:<payTo>`，全小写）。 */
+/** 交易哈希归一：EVM `0x…` 小写，Solana base58 交易签名原样。 */
+function txHashKey(hash: string): string {
+  return hash.startsWith('0x') ? hash.toLowerCase() : hash
+}
+
+/** 余额查询待签消息（服务端 `keel-settle-balance:<payTo>`；EVM 小写，Solana 原样）。 */
+export function settleFeesBalanceMessage(payTo: string): string {
+  return `keel-settle-balance:${payToKey(payTo)}`
+}
+
+/** 自助充值待签消息（服务端 `keel-settle-topup:<chain>:<txHash>:<payTo>`；仅 EVM 地址/哈希转小写）。 */
 export function settleFeesTopupMessage(args: { chain: string; txHash: string; payTo: string }): string {
-  return `keel-settle-topup:${args.chain.toLowerCase()}:${args.txHash.toLowerCase()}:${args.payTo.toLowerCase()}`
+  return `keel-settle-topup:${args.chain.toLowerCase()}:${txHashKey(args.txHash)}:${payToKey(args.payTo)}`
 }
 
 export class PaymentAPI {
@@ -210,25 +242,34 @@ export class PaymentAPI {
 
   /**
    * 查询 payTo 的代播费余额（免平台 key）。
-   * 未传 `signature` 时用 `KeelConfig.wallet` 签 `settleFeesBalanceMessage(payTo)`。
+   * 未传 `signature` 时用 `params.signer` 或 `KeelConfig.wallet` 签
+   * `settleFeesBalanceMessage(payTo)`（EVM 用 wallet，Solana 用 signer）。
    */
   async settleFeesBalance(params: SettleFeeBalanceParams): Promise<SettleFeeBalanceResult> {
-    const payTo = params.payTo.toLowerCase()
-    const signature = params.signature ?? (await this.signSettleFees(payTo, settleFeesBalanceMessage(payTo)))
+    const payTo = payToKey(params.payTo)
+    const signature =
+      params.signature ??
+      (await this.signSettleFees(payTo, settleFeesBalanceMessage(payTo), params.signer))
     return this.http.post<SettleFeeBalanceResult>('/v1/payment/x402/settle-fees/balance', { payTo, signature })
   }
 
   /**
    * 自助充值：凭「payTo 签名 + 已上链的 txHash」把代播费记入余额（免平台 key）。
    * 链上转账的收款方必须是该链平台 collector，精度由服务端换算成 6 位微单位。
-   * 未传 `signature` 时用 `KeelConfig.wallet` 签 `settleFeesTopupMessage(...)`。
+   * 未传 `signature` 时用 `params.signer` 或 `KeelConfig.wallet` 签
+   * `settleFeesTopupMessage(...)`。
    */
   async settleFeesTopup(params: SettleFeeTopupParams): Promise<SettleFeeTopupResult> {
-    const payTo = params.payTo.toLowerCase()
+    const payTo = payToKey(params.payTo)
     const chain = params.chain.toLowerCase()
-    const txHash = params.txHash.toLowerCase()
+    const txHash = txHashKey(params.txHash)
     const signature =
-      params.signature ?? (await this.signSettleFees(payTo, settleFeesTopupMessage({ chain, txHash, payTo })))
+      params.signature ??
+      (await this.signSettleFees(
+        payTo,
+        settleFeesTopupMessage({ chain, txHash, payTo }),
+        params.signer,
+      ))
     return this.http.post<SettleFeeTopupResult>('/v1/payment/x402/settle-fees/self-topup', {
       payTo,
       chain,
@@ -237,19 +278,25 @@ export class PaymentAPI {
     })
   }
 
-  /** 用配置的钱包签 settle-fees 消息；签名地址必须就是 payTo（服务端按它验签）。 */
-  private async signSettleFees(payTo: string, message: string): Promise<string> {
-    if (!this.wallet) {
+  /** 用 signer（Solana）或配置的钱包（EVM）签 settle-fees 消息；签名地址必须就是 payTo。 */
+  private async signSettleFees(
+    payTo: string,
+    message: string,
+    signer?: SettleFeesSigner,
+  ): Promise<string> {
+    const wallet = signer ?? this.wallet
+    if (!wallet) {
       throw new Error(
-        '[keel-sdk] settle-fees needs a signature: pass `signature` or configure KeelConfig.wallet',
+        '[keel-sdk] settle-fees needs a signature: pass `signature`, `signer`, or configure KeelConfig.wallet',
       )
     }
-    if (this.wallet.address.toLowerCase() !== payTo) {
+    // EVM 地址大小写不敏感（checksum）；Solana base58 必须完全一致。
+    if (payToKey(wallet.address) !== payTo) {
       throw new Error(
-        `[keel-sdk] settle-fees signature must come from payTo (wallet=${this.wallet.address}, payTo=${payTo})`,
+        `[keel-sdk] settle-fees signature must come from payTo (wallet=${wallet.address}, payTo=${payTo})`,
       )
     }
-    return this.wallet.sign(message)
+    return wallet.sign(message)
   }
 
   /** 查余额。 */

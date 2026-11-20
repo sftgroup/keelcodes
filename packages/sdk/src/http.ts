@@ -29,6 +29,7 @@ const WALLET_TOKEN_TTL_MS = 60 * 60 * 1000
 
 export class HttpClient {
   private baseUrl: string
+  private rpcBaseUrl: string
   private headers: Record<string, string>
   private timeout: number
   private wallet?: KeelWalletAuth
@@ -37,6 +38,7 @@ export class HttpClient {
 
   constructor(config: KeelConfig = {}) {
     this.baseUrl = (config.baseUrl ?? 'https://keel.codes').replace(/\/+$/, '')
+    this.rpcBaseUrl = (config.rpcBaseUrl ?? this.baseUrl).replace(/\/+$/, '')
     this.timeout = config.timeout ?? 30000
     this.headers = { 'Content-Type': 'application/json', 'X-Keel-Version': SDK_VERSION }
     if (config.apiKey) this.headers['Authorization'] = `Bearer ${config.apiKey}`
@@ -62,6 +64,16 @@ export class HttpClient {
     return this.request<T>('DELETE', path, body, headers)
   }
 
+  /** 链上 RPC 专用 GET（走 rpcBaseUrl）。 */
+  rpcGet<T>(path: string, headers?: Record<string, string>): Promise<T> {
+    return this.request<T>('GET', path, undefined, headers, this.rpcBaseUrl)
+  }
+
+  /** 链上 RPC 专用 POST（走 rpcBaseUrl）。 */
+  rpcPost<T>(path: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
+    return this.request<T>('POST', path, body, headers, this.rpcBaseUrl)
+  }
+
   /**
    * 发起 SSE / 流式 GET，返回原始 `Response`（不解析 JSON、不设超时）。
    * 调用方自行消费 `res.body`；非 2xx 仍抛 `KeelApiError`。
@@ -78,9 +90,15 @@ export class HttpClient {
     return res
   }
 
-  async request<T>(method: string, path: string, body?: unknown, extraHeaders?: Record<string, string>): Promise<T> {
+  async request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+    extraHeaders?: Record<string, string>,
+    baseUrl: string = this.baseUrl,
+  ): Promise<T> {
     const headers = { ...(await this.buildHeaders()), ...extraHeaders }
-    let res = await this.send(method, path, body, headers)
+    let res = await this.send(method, path, body, headers, baseUrl)
     let json: any = await res.json().catch(() => ({}))
 
     // 402 → 若配置了 x402 付款钱包，签一份标准 exact 授权并原样重试（仅一次）。
@@ -139,7 +157,7 @@ export class HttpClient {
         const paidHeaders = usedEoaFallback
           ? { ...headers, 'x-keel-pay-with': 'eoa' }
           : headers
-        res = await this.send(method, path, body, { ...paidHeaders, 'PAYMENT-SIGNATURE': header })
+        res = await this.send(method, path, body, { ...paidHeaders, 'PAYMENT-SIGNATURE': header }, baseUrl)
         json = await res.json().catch(() => ({}))
       }
     }
@@ -156,11 +174,12 @@ export class HttpClient {
     path: string,
     body: unknown,
     headers: Record<string, string>,
+    baseUrl: string = this.baseUrl,
   ): Promise<Response> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), this.timeout)
     try {
-      return await fetch(this.baseUrl + path, {
+      return await fetch(baseUrl + path, {
         method,
         headers,
         body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -196,8 +215,13 @@ export class HttpClient {
     }
     const timestamp = String(now)
     const signature = await this.wallet.sign(`Keel auth: ${timestamp}`)
+    // EVM 地址大小写不敏感，统一小写便于服务端比对；
+    // Solana 是 base58（大小写即数据），任何归一化都会破坏地址。
+    const address = this.wallet.address.startsWith('0x')
+      ? this.wallet.address.toLowerCase()
+      : this.wallet.address
     const headers = {
-      'x-wallet-address': this.wallet.address.toLowerCase(),
+      'x-wallet-address': address,
       'x-wallet-timestamp': timestamp,
       'x-wallet-signature': signature,
     }

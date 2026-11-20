@@ -12,12 +12,10 @@ export interface MpcBalanceParams {
   tokenAddress?: string
 }
 
-/** 注册参数：`curve='ed25519'` 时创建 Solana 钱包（可选 seed 导入存量私钥）。 */
+/** 注册参数：`curve='ed25519'` 时创建 Solana 钱包（服务端新生成种子；不支持导入已有私钥）。 */
 export interface MpcRegisterParams extends MpcVerifyParams {
   /** 签名曲线，默认 `secp256k1`（EVM）。 */
   curve?: 'secp256k1' | 'ed25519'
-  /** 仅 ed25519：32B 种子 hex（可带 0x）；导入后 base58 地址与导入前逐字节一致。 */
-  seed?: string
   walletAddress?: string
 }
 

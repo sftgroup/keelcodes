@@ -4,6 +4,7 @@
 
 import { HttpClient } from './http'
 import type { KeelEnvelope, KeelModule } from './types'
+import type { AmountString } from './wallet/types'
 
 export interface TenantCreateParams {
   name: string
@@ -72,8 +73,28 @@ export class AccountAPI {
     cancel: (module: KeelModule) => this.http.post('/v1/account/subscription/cancel', { module }),
   }
 
-  /** 创建提现（钱包签名；启用 TOTP 时需带 `totpCode`）。 */
-  withdraw(p: { externalUserId: string; toAddress: string; amount: string; token?: string; totpCode?: string }): Promise<Record<string, unknown>> {
+  /**
+   * 创建提现（钱包签名 / 租户 key；启用 TOTP 时需带 `totpCode`）。
+   *
+   * Solana 出金必填 `chain: 'solana'`（或 `sol`）；SPL 代币再传 `tokenAddress`（= SPL mint，base58
+   * 大小写敏感）；原生 SOL 不传 `tokenAddress`。`reference` 为同租户幂等键，重复提交返回原单（200）。
+   */
+  withdraw(p: {
+    externalUserId: string
+    toAddress: string
+    amount: AmountString
+    /** 币种符号；缺省 `'*'`（原生币）。 */
+    token?: string
+    /** Solana 必填 `solana`；未传时仅当租户只有一条热钱包时自动推断。 */
+    chain?: string
+    chainName?: string
+    chainId?: string
+    /** SPL mint（base58，大小写敏感）/ ERC-20 合约地址。 */
+    tokenAddress?: string
+    /** 幂等键，≤100 字符。 */
+    reference?: string
+    totpCode?: string
+  }): Promise<Record<string, unknown>> {
     return this.http.post<Record<string, unknown>>('/v1/account/withdraw', p)
   }
 
