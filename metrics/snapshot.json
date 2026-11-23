@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T11:23:23.641Z",
+  "generatedAt": "2026-11-23T12:37:41.212Z",
   "repo": "sftgroup/keelcodes",
   "metrics": [
     {
@@ -59,10 +59,10 @@
     {
       "id": "npm.downloads",
       "label": "npm weekly downloads",
-      "value": 982,
+      "value": 898,
       "source": "npm registry API",
       "frequency": "weekly",
-      "display": "982",
+      "display": "898",
       "target": "TBD"
     },
     {
@@ -186,55 +186,55 @@
   "packages": [
     {
       "name": "@keelcodes/adapters",
-      "weeklyDownloads": 35
+      "weeklyDownloads": 29
     },
     {
       "name": "@keelcodes/cli",
-      "weeklyDownloads": 12
+      "weeklyDownloads": 11
     },
     {
       "name": "@keelcodes/conformance",
-      "weeklyDownloads": 12
+      "weeklyDownloads": 10
     },
     {
       "name": "@keelcodes/manifest",
-      "weeklyDownloads": 14
+      "weeklyDownloads": 13
     },
     {
       "name": "@keelcodes/mcp",
-      "weeklyDownloads": 99
+      "weeklyDownloads": 55
     },
     {
       "name": "@keelcodes/mcp-chain-data",
-      "weeklyDownloads": 30
+      "weeklyDownloads": 26
     },
     {
       "name": "@keelcodes/mcp-market",
-      "weeklyDownloads": 42
+      "weeklyDownloads": 27
     },
     {
       "name": "@keelcodes/mcp-policy",
-      "weeklyDownloads": 29
-    },
-    {
-      "name": "@keelcodes/mcp-quant",
-      "weeklyDownloads": 23
-    },
-    {
-      "name": "@keelcodes/migrate",
-      "weeklyDownloads": 14
-    },
-    {
-      "name": "@keelcodes/policy",
       "weeklyDownloads": 21
     },
     {
+      "name": "@keelcodes/mcp-quant",
+      "weeklyDownloads": 26
+    },
+    {
+      "name": "@keelcodes/migrate",
+      "weeklyDownloads": 13
+    },
+    {
+      "name": "@keelcodes/policy",
+      "weeklyDownloads": 20
+    },
+    {
       "name": "@keelcodes/sdk",
-      "weeklyDownloads": 588
+      "weeklyDownloads": 592
     },
     {
       "name": "@keelcodes/self-host",
-      "weeklyDownloads": 29
+      "weeklyDownloads": 24
     },
     {
       "name": "@keelcodes/settlement",
@@ -242,7 +242,7 @@
     },
     {
       "name": "@keelcodes/x402-gate",
-      "weeklyDownloads": 28
+      "weeklyDownloads": 25
     }
   ],
   "chains": [
@@ -312,7 +312,7 @@
     {
       "file": "npm-downloads.svg",
       "label": "npm / week",
-      "value": "982",
+      "value": "898",
       "color": "#007ec6"
     }
   ]
